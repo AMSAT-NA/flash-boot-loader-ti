@@ -37,6 +37,8 @@ typedef  void (*pFunction)(void);
 #define CONVERTHEX_alpha(c)  (IS_AF(c) ? (c - 'A'+10) : (c - 'a'+10))
 #define CONVERTHEX(c)   (IS_09(c) ? (c - '0') : CONVERTHEX_alpha(c))
 
+#define CRLF "\r\n"
+
 /* Exported functions ------------------------------------------------------- */
 void Int2Str(char* str,int intnum);
 uint32_t Str2Int(unsigned char *inputstr,int *intnum);

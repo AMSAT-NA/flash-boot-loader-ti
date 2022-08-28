@@ -3,7 +3,7 @@
  * bl_main.c      : The main file for the boot loader.
  * Author         : QJ Wang. qjwang@ti.com
  * Date           : 2-18-2016
- * Heimir Thor Sverrisson, W1ANT updates 2022-08-26
+ * 2022-08-26 Heimir Thor Sverrisson, w1ant, heimir.sverrisson@gmail.com
  *
  * Copyright (c) 2006-2011 Texas Instruments Incorporated.  All rights reserved.
  * Software License Agreement
@@ -110,8 +110,10 @@ void main(void) {
 	/* Initialize SCI Routines to receive Command and transmit data */
 	sciInit();
 
+#ifdef DEBUG_MSG
 	UART_putString(UART, "\r\nHercules MCU UART BootLoader\r\n");
 	UART_putString(UART, "TI Safety MCU Application Team, qjwang@ti.com\r\n");
+#endif
 
 	// Bring GIO out of reset before the call to CheckForceUpdate() below
 	CheckGPIOForceUpdate();
