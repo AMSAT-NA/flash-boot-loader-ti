@@ -42,7 +42,8 @@
  *   @brief Get the Software Version of the Demo
  */
 void get_software_Version(void) {
-	UART_putString(UART, "\n\r The BootLoader Version: V1.0 \n\n\r");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "Flash Loader TI: 1.0.0");
 	return;
 }
 
@@ -59,17 +60,15 @@ void get_hardware_Info(void) {
 	LOT_NUM = ((DIE_ID1 & 0xFFC00000) >> 22) | ((DIE_ID2 & 0x00003FFF) << 10);
 	WAFER_LOC_NUM = (DIE_ID1 & 0x003FFFFF);
 
-	UART_putString(UART, "\n\r Device Information: \r\n ");
-
-	UART_putString(UART, "DEV:  ");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "DEV:           ");
 	UART_send32BitData(UART, systemREG1->DEV);
-	UART_putString(UART, "  \r\n ");
-	UART_putString(UART, "LOT NUM:  ");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "LOT NUM:       ");
 	UART_send32BitData(UART, LOT_NUM);
-	UART_putString(UART, " \r\n ");
-	UART_putString(UART, "WAFER LOC NUM:  ");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "WAFER LOC NUM: ");
 	UART_send32BitData(UART, (WAFER_LOC_NUM));
-	UART_putString(UART, " \n\n\r\n ");
 
 	return;
 }

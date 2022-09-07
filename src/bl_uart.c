@@ -4,6 +4,8 @@
 // Author    : QJ Wang. qjwang@ti.com
 // Date      : 9-19-2012
 //
+// 2022-08-28, Heimir Thor Sverrisson, w1ant, heimir.sverrisson@gmail.com
+//
 // Copyright (c) 2006-2011 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
 // 
@@ -23,7 +25,6 @@
 //*****************************************************************************
 #include "bl_config.h"
 
-#if defined(UART_ENABLE_UPDATE)
 #include "hw_sci.h"
 #include "bl_uart.h"
 #include "sci_common.h"
@@ -43,37 +44,34 @@ extern uint32_t g_ulUpdateBufferSize;  //32 bytes or 8 32-bit words
 extern char fileName[FILENAME_LEN];
 char tab_1024[1024] = { 0 };
 
-//*****************************************************************************
-//
-//  bl_uart_api
-//
-//
-//*****************************************************************************
-/**
- * @brief  Download a file via serial port
- * @param  None
- * @retval None
- */
 void UART_Download() {
+#ifdef DEBUG_MSG
 	char Number[10] = "          ";
+#endif
 	int Size = 0;
 
-	UART_putString(UART, "\n\r Waiting for the file to be sent ... ");
-	UART_putString(UART,
-			"\n\r Use Transfer->Send File and Ymodem Protocol from HyperTerminal \n\r");
-
 	Size = Ymodem_Receive(UART, &tab_1024[0]);
+	UART_putString(UART, CRLF);
 	if (Size > 0) {
-		UART_putString(UART,
-				"\n\r The application image has been programmed successfully!\n\r---------------------------\n\r Name: ");
+#ifdef DEBUG_MSG
+		UART_putString(UART, "The application image has been programmed successfully");
+		UART_putString(UART, CRLF);
+		UART_putString(UART, "---------------------------");
+		UART_putString(UART, CRLF);
+		UART_putString(UART, "Name: ");
 		UART_putString(UART, fileName);
+		UART_putString(UART, CRLF);
 		Int2Str(Number, Size);
-		UART_putString(UART, "\n\n\r Size:     ");
+		UART_putString(UART, "Size:     ");
 		UART_putString(UART, Number);
-		UART_putString(UART, "  Bytes\n\r");
-		UART_putString(UART, "---------------------------\n\n\n\n\r");
+		UART_putString(UART, "  Bytes");
+		UART_putString(UART, CRLF);
+		UART_putString(UART, "---------------------------");
+		UART_putString(UART, CRLF);
+#endif
+		UART_putString(UART, "0");
 	} else {
-		UART_putString(UART, "\n\rFailed to receive the file!\n\r");
+		UART_putString(UART, "1");
 	}
 }
 
@@ -93,24 +91,45 @@ void UART_Upload(void) {
 	imageAddress = updateInfo[1];
 	imageSize = updateInfo[2];
 
-	UART_putString(UART,
-			"\n\n\rSelect Receive File and Ymodel protocol in the drop-down menu... (press any key to abort)\n\r");
-
 	if (UART_getKey(UART) == CRC) {
 		/* Transmit the flash image through ymodem protocol */
 		status = Ymodem_Transmit(UART, (uint8_t*) imageAddress,
 				(char*) "UploadedApplicationImage.bin", imageSize);
 
+		UART_putString(UART, CRLF);
 		if (status != 0) {
-			UART_putString(UART, "\n\rError occured while transmitting\n\r");
+			UART_putString(UART, "1");
 		} else {
-			UART_putString(UART,
-					"\n\rApplication image has been transmitted successfully \n\n\n\r");
+			UART_putString(UART, "0");
 		}
 	} else {
-		UART_putString(UART, "\r\n\nAborted by user.\n\r");
+		UART_putString(UART, "1");
 	}
+}
 
+static void showMainMenu(){
+	UART_putString(UART, CRLF);
+	UART_putString(UART,
+			"================== Main Menu ==========================");
+	UART_putString(UART, CRLF);
+	UART_putString(UART,
+			"  1. Download Application Image To the Internal Flash");
+	UART_putString(UART, CRLF);
+	UART_putString(UART,
+			"  2. Upload The Application Image From the Internal Flash");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "  3. Execute The Application Code");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "  4. Get Flash Loader Version");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "  5. Get Device Information");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "  6. Check if update is needed");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "  ?. Show this menu");
+	UART_putString(UART, CRLF);
+	UART_putString(UART,
+			"=======================================================");
 }
 
 //*****************************************************************************
@@ -128,20 +147,12 @@ void UpdaterUART(void) {
 
 	while (1) {
 		LITE_TOPRIGHT_LED;
-		UART_putString(UART,
-				"\r================== Main Menu ==========================\r\n");
-		UART_putString(UART,
-				"  1. Download Application Image To the Internal Flash \r\n");
-		UART_putString(UART,
-				"  2. Upload The Application Image From the Internal Flash \r\n");
-		UART_putString(UART, "  3. Execute The Application Code \r\n");
-		UART_putString(UART, "  4. Get Bootloader Version \r\n");
-		UART_putString(UART, "  5. Get Device Information \r\n");
-		UART_putString(UART, "  6. Check if update is needed \r\n");
 
-		UART_putString(UART,
-				"=======================================================\r\n\n");
-
+#ifdef DEBUG_MSG
+		showMainMenu();
+#endif
+		UART_putString(UART, CRLF);
+		UART_putString(UART, "$ ");
 		key = UART_getKey(UART);
 
 		if (key == 0x31) {
@@ -151,28 +162,29 @@ void UpdaterUART(void) {
 			/* Upload user application from the Flash */
 			UART_Upload();
 		} else if (key == 0x33) {
-			UART_putString(UART, "The application is running now !! \n\r\n\r");
 			JumpAddress = (uint32_t) APP_START_ADDRESS;
-			((void (*)(void)) JumpAddress)();
+			if(!CheckForceUpdate()){ // Only jump if update is not pending!
+				((void (*)(void)) JumpAddress)();
+			}
 		} else if (key == 0x34) {
 			get_software_Version();
 		} else if (key == 0x35) {
 			get_hardware_Info();
 		} else if (key == 0x36) {
 			checkUpdate();
+		} else if (key == '?') {
+			showMainMenu();
 		} else {
-			UART_putString(UART, "Invalid Number !! \n\r\n\r");
+			UART_putString(UART, "?");
 		}
 	}
 }
 
 static void checkUpdate(){
+	UART_putString(UART, CRLF);
 	if(CheckForceUpdate()){
-		UART_putString(UART, "Need to update\r\n");
+		UART_putString(UART, "1");
 	} else {
-		UART_putString(UART, "No need to update\r\n");
+		UART_putString(UART, "0");
 	}
 }
-
-#endif
-

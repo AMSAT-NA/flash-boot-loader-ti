@@ -72,8 +72,6 @@
 // Requires: UART_FIXED_BAUDRATE, BUFFER_SIZE
 //*****************************************************************************
 #define UART_ENABLE_UPDATE
-//#define SPI_ENABLE_UPDATE
-//#define CAN_ENABLE_UPDATE
 
 //*****************************************************************************
 // The starting address of the application.  This must be a multiple of 32K(sector size)
@@ -83,7 +81,6 @@
 // The flash image of the boot loader must not be larger than this value.
 //*****************************************************************************
 #define APP_START_ADDRESS       0x00010100
-// #define APP_START_ADDRESS       0x00020000
 
 //*****************************************************************************
 // The address to store the update status of the application image
@@ -92,11 +89,8 @@
 //*****************************************************************************
 #define APP_STATUS_ADDRESS       0x00010000
 
-/* UART is used in all the boot modes*/
-//#if defined (UART_ENABLE_UPDATE)
 #define UART_BAUDRATE     115200
 #define UART              sciREG1   /* Use UART port 1 for UART boot */
-//#endif
 
 #define BUFFER_SIZE             64       /*words in the data buffer used for receiving packets*/
 
@@ -130,6 +124,5 @@
 
 #endif
 
-// #define   DEBUG_MSG_L3
-#define DEBUG_MSG
+// #define DEBUG_MSG
 #endif // __BL_CONFIG_H__
