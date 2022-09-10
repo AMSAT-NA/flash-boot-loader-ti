@@ -170,10 +170,10 @@ int Ymodem_Receive(sciBASE_t *sci, char *buf) {
 				break;
 			case EOTHeader: /* End of transmission */
 				UART_txByte(sci, ACK);
-				file_done = 1;
-				loop = 0;
+				state = EndSession;
 				break;
 			case EndSession:
+				UART_txByte(sci, CRC);
 				UART_txByte(sci, ACK);
 				file_done = 1;
 				loop = 0;  //session done
@@ -285,7 +285,7 @@ int Ymodem_Receive(sciBASE_t *sci, char *buf) {
 				/* packet_data[PACKET_HEADER] = 0: Filename packet is empty, end session */
 				else {
 					state = EndSession;
-				}  //end of "if (packet_data[PACKET_HEADER] != 0), else"
+				}
 				break;
 			case DataPacket:
 				oReturnCheck = 0;
