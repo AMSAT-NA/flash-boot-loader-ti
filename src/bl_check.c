@@ -6,13 +6,13 @@
 //
 // Copyright (c) 2006-2011 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
-// 
+//
 // Texas Instruments (TI) is supplying this software for use solely and
 // exclusively on TI's microcontroller products. The software is owned by
 // TI and/or its suppliers, and is protected under applicable copyright
 // laws. You may not combine this software with "viral" open-source
 // software in order to form a larger program.
-// 
+//
 // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
 // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
 // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -75,15 +75,9 @@ uint32_t CheckGPIOForceUpdate(void) {
 	// Set the pin as input
 	gioPORT->DIR &= ~(1 << FORCED_UPDATE_PIN);
 
-	// Enable the pull up/down.
-	gioPORT->PULDIS &= ~(1 << FORCED_UPDATE_PIN);
-
-	// Enable the weak pull up.
-	gioPORT->PSL |= 1 << FORCED_UPDATE_PIN;
-
 	// Check the pin to see if an update is being requested.
 
-	if ((gioPORT->DIN & (0x1 << FORCED_UPDATE_PIN)) == 0) {
+	if (!((gioPORT->DIN & (0x1 << FORCED_UPDATE_PIN)) == 0)) {
 		// Remember that this was a forced update.
 		g_ulForced = 1;
 		return (1);
