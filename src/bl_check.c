@@ -122,18 +122,9 @@ uint32_t CheckForceUpdate(void) {
 	UART_putString(UART, "\r\n");
 #endif
 
-	if ((pulApp[0] != g_pulUpdateSuccess[0])) {
+	if ((pulApp[0] != g_pulUpdateSuccess[0])) { // Pattern is not 0x5A5A5A5A
 		return (1);    //1 means Need New UPDATE
 	}
-
-// if the checked location is 0x5A5A5A5A, check GPIO forced update
-#ifdef ENABLE_UPDATE_CHECK
-	// If simple GPIO checking is configured, determine whether or not to force an update.
-	return (CheckGPIOForceUpdate());
-#else
-    // GPIO checking is not required so, if we get here, a valid image exists and no update is needed.
     return(0);
-#endif
-
 }
 

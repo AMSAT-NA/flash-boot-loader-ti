@@ -163,7 +163,7 @@ void UpdaterUART(void) {
 			UART_Upload();
 		} else if (key == 0x33) {
 			JumpAddress = (uint32_t) APP_START_ADDRESS;
-			if(!CheckForceUpdate()){ // Only jump if update is not pending!
+			if(!CheckForceUpdate()){ // Only jump if application is loaded (0x5a5a5a5a pattern written)
 				((void (*)(void)) JumpAddress)();
 			}
 		} else if (key == 0x34) {
