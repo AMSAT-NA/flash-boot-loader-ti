@@ -69,6 +69,10 @@ void get_hardware_Info(void) {
 	UART_putString(UART, CRLF);
 	UART_putString(UART, "WAFER LOC NUM: ");
 	UART_send32BitData(UART, (WAFER_LOC_NUM));
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "FLASH START:   00010000");
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "FLASH END:     00140000");
 
 	return;
 }
