@@ -31,12 +31,12 @@
 #include "bl_ymodem.h"
 #include "sys_common.h"
 #include "bl_led_demo.h"
+#include "bl_check.h"
 
 uint32_t JumpAddress;
 void get_software_Version(void);
 void get_hardware_Info(void);
-static void checkUpdate(void);
-uint32_t CheckForceUpdate(void);
+static void applicationStatus(void);
 
 extern uint32_t g_pulUpdateSuccess[8];
 extern uint32_t g_ulUpdateStatusAddr;
@@ -124,7 +124,7 @@ static void showMainMenu(){
 	UART_putString(UART, CRLF);
 	UART_putString(UART, "  5. Get Device Information");
 	UART_putString(UART, CRLF);
-	UART_putString(UART, "  6. Check if update is needed");
+	UART_putString(UART, "  6. Application Status");
 	UART_putString(UART, CRLF);
 	UART_putString(UART, "  ?. Show this menu");
 	UART_putString(UART, CRLF);
@@ -163,7 +163,7 @@ void UpdaterUART(void) {
 			UART_Upload();
 		} else if (key == 0x33) {
 			JumpAddress = (uint32_t) APP_START_ADDRESS;
-			if(!CheckForceUpdate()){ // Only jump if update is not pending!
+			if(!CheckForceUpdate()){ // Only jump if application is loaded (0x5a5a5a5a pattern written)
 				((void (*)(void)) JumpAddress)();
 			}
 		} else if (key == 0x34) {
@@ -171,7 +171,7 @@ void UpdaterUART(void) {
 		} else if (key == 0x35) {
 			get_hardware_Info();
 		} else if (key == 0x36) {
-			checkUpdate();
+			applicationStatus();
 		} else if (key == '?') {
 			showMainMenu();
 		} else {
@@ -180,11 +180,23 @@ void UpdaterUART(void) {
 	}
 }
 
-static void checkUpdate(){
+static void applicationStatus(){
+	uint32_t * pulApp;
+
+	pulApp = (uint32_t*) g_ulUpdateStatusAddr;
 	UART_putString(UART, CRLF);
-	if(CheckForceUpdate()){
-		UART_putString(UART, "1");
+	UART_putString(UART, "Application valid pattern: ");
+	UART_send32BitData(sciREG1, pulApp[0]);
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "Application image size: ");
+	UART_send32BitData(sciREG1, pulApp[2]);
+	UART_putString(UART, CRLF);
+	UART_putString(UART, "Application image address: ");
+	UART_send32BitData(sciREG1, pulApp[1]);
+	UART_putString(UART, CRLF);
+	if(CheckGPIOForceUpdate()){
+		UART_putString(UART, "Prompt pin is active");
 	} else {
-		UART_putString(UART, "0");
+		UART_putString(UART, "Prompt pin is not active");
 	}
 }

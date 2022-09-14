@@ -110,18 +110,10 @@ void main(void) {
 	/* Initialize SCI Routines to receive Command and transmit data */
 	sciInit();
 
-#ifdef DEBUG_MSG
-	UART_putString(UART, "\r\nHercules MCU UART BootLoader\r\n");
-	UART_putString(UART, "TI Safety MCU Application Team, qjwang@ti.com\r\n");
-#endif
-
 	// Bring GIO out of reset before the call to CheckForceUpdate() below
 	CheckGPIOForceUpdate();
 
-	if (!CheckForceUpdate()) {
-#ifdef DEBUG_MSG
-		UART_putString(UART, "Jump to application...\r\n");
-#endif
+	if (!CheckGPIOForceUpdate() && !CheckForceUpdate()) {
 		g_ulTransferAddress = (uint32_t) APP_START_ADDRESS;
 		((void (*)(void)) g_ulTransferAddress)();
 	}

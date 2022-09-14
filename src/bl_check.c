@@ -6,13 +6,13 @@
 //
 // Copyright (c) 2006-2011 Texas Instruments Incorporated.  All rights reserved.
 // Software License Agreement
-// 
+//
 // Texas Instruments (TI) is supplying this software for use solely and
 // exclusively on TI's microcontroller products. The software is owned by
 // TI and/or its suppliers, and is protected under applicable copyright
 // laws. You may not combine this software with "viral" open-source
 // software in order to form a larger program.
-// 
+//
 // THIS SOFTWARE IS PROVIDED "AS IS" AND WITH ALL FAULTS.
 // NO WARRANTIES, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING, BUT
 // NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -75,15 +75,9 @@ uint32_t CheckGPIOForceUpdate(void) {
 	// Set the pin as input
 	gioPORT->DIR &= ~(1 << FORCED_UPDATE_PIN);
 
-	// Enable the pull up/down.
-	gioPORT->PULDIS &= ~(1 << FORCED_UPDATE_PIN);
-
-	// Enable the weak pull up.
-	gioPORT->PSL |= 1 << FORCED_UPDATE_PIN;
-
 	// Check the pin to see if an update is being requested.
 
-	if ((gioPORT->DIN & (0x1 << FORCED_UPDATE_PIN)) == 0) {
+	if (!((gioPORT->DIN & (0x1 << FORCED_UPDATE_PIN)) == 0)) {
 		// Remember that this was a forced update.
 		g_ulForced = 1;
 		return (1);
@@ -128,18 +122,9 @@ uint32_t CheckForceUpdate(void) {
 	UART_putString(UART, "\r\n");
 #endif
 
-	if ((pulApp[0] != g_pulUpdateSuccess[0])) {
+	if ((pulApp[0] != g_pulUpdateSuccess[0])) { // Pattern is not 0x5A5A5A5A
 		return (1);    //1 means Need New UPDATE
 	}
-
-// if the checked location is 0x5A5A5A5A, check GPIO forced update
-#ifdef ENABLE_UPDATE_CHECK
-	// If simple GPIO checking is configured, determine whether or not to force an update.
-	return (CheckGPIOForceUpdate());
-#else
-    // GPIO checking is not required so, if we get here, a valid image exists and no update is needed.
     return(0);
-#endif
-
 }
 
